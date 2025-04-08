@@ -1,0 +1,6 @@
+@Couchbase.EFCore.Quickstart_HostAddress = http://localhost:5108
+
+GET {{Couchbase.EFCore.Quickstart_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

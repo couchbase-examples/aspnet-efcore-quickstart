@@ -1,0 +1,31 @@
+using System.Text.Json.Serialization;
+
+namespace Couchbase.EFCore.Quickstart.Models;
+
+public class AirlineUpdateRequestCommand
+{
+    [JsonPropertyName("callsign")]
+    public string Callsign { get; set; } = string.Empty;
+    
+    [JsonPropertyName("country")]
+    public string Country { get; set; } = string.Empty;
+    
+    [JsonPropertyName("iata")]
+    public string Iata { get; set; } = string.Empty;
+    
+    [JsonPropertyName("icao")]
+    public string Icao { get; set; } = string.Empty;
+    
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+    
+    public Airline GetUpdatedAirline(Airline existingAirline)
+    {
+        existingAirline.Callsign = this.Callsign;
+        existingAirline.Country = this.Country;
+        existingAirline.Iata = this.Iata;
+        existingAirline.Icao = this.Icao;
+        existingAirline.Name = this.Name;
+        return existingAirline;
+    }
+}
