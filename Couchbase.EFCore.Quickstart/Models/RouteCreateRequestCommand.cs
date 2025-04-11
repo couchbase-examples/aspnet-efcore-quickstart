@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace Couchbase.EFCore.Quickstart.Models;
@@ -22,7 +21,7 @@ public class RouteCreateRequestCommand
 
     [JsonPropertyName("equipment")]
     public string Equipment { get; set; } = string.Empty;
-
+    
     [JsonPropertyName("schedule")]
     public List<Schedule> Schedule { get; set; }
 

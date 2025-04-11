@@ -39,12 +39,8 @@ public class AirportController: Controller
                 query = query.Where(a => a.Country.ToLower() == country.ToLower());
             }
 
-            query = query.OrderBy(a => a.Airportname);
-
-            query = query
-                .Skip(offset ?? 0)
-                .Take(limit ?? 10);
-
+            query = query.OrderBy(a => a.Airportname).Skip(offset ?? 0).Take(limit ?? 10);
+            
             var items = await query.ToListAsync();
 
             return items.Count == 0 ? NotFound() : Ok(items);
@@ -53,6 +49,47 @@ public class AirportController: Controller
         {
             _logger.LogError("An error occurred: {Message}", ex.Message);
             return StatusCode(StatusCodes.Status500InternalServerError, $"Error: {ex.Message} {ex.StackTrace} {Request.GetDisplayUrl()}");
+        }
+    }
+    
+    [HttpGet]
+    [Route("direct-connections")]
+    [SwaggerOperation(Description = "Get Direct Connections from specified Airport.\n\nThis provides an example of using EF Core to fetch a list of documents matching the specified criteria. \n\n Code: [`Controllers/AirportController`](https://github.com/couchbase-examples/aspnet-quickstart/blob/main/src/Org.Quickstart.API/Controllers/AirportController.cs) \n Class: `AirportController` \n Method: `DirectConnections`")]
+    [SwaggerResponse(200, "List of direct connections")]
+    [SwaggerResponse(500, "Unexpected Error")]
+    public async Task<IActionResult> DirectConnections(
+        [FromQuery(Name = "airport"), SwaggerParameter("Airport (Example: SFO, JFK, LAX)", Required = true)] string airport,
+        [FromQuery(Name = "limit"), SwaggerParameter("Number of direct connections to return (page size). Default value: 10.", Required = false)] int? limit,
+        [FromQuery(Name = "offset"), SwaggerParameter("Number of direct connections to skip (for pagination). Default value: 0.", Required = false)] int? offset)
+    {
+        try
+        {
+            var pageSize = limit ?? 10;
+            var skip = offset ?? 0;
+            var airportCode = airport.ToLower();
+
+            const string sql = @"
+                SELECT DISTINCT route.destinationairport
+                FROM `travel-sample`.`inventory`.`airport` AS airport
+                JOIN `travel-sample`.`inventory`.`route` AS route
+                  ON route.sourceairport = airport.faa
+                WHERE LOWER(airport.faa) = {0}
+                  AND route.stops = 0
+                ORDER BY route.destinationairport
+                LIMIT {1}
+                OFFSET {2}";
+
+            var destinations = await _context.Airports
+                .FromSqlRaw(sql, airportCode, pageSize, skip)
+                .ToListAsync();
+
+            return destinations.Count == 0 ? NotFound() : Ok(destinations);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("An error occurred: {Message}", ex.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                $"Error: {ex.Message} {ex.StackTrace} {Request.GetDisplayUrl()}");
         }
     }
     
@@ -125,6 +162,7 @@ public class AirportController: Controller
     [SwaggerOperation(Description = "Delete Airport with specified ID.")]
     [SwaggerResponse(204, "Airport Deleted")]
     [SwaggerResponse(404, "Airport ID not found")]
+    [SwaggerResponse(500, "Internal server error")]
     public async Task<IActionResult> Delete([FromRoute] int id)
     {
         try
