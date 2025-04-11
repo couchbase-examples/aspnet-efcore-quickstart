@@ -81,7 +81,7 @@ public class AirlineController: Controller
         {
             var pageSize = limit ?? 10;
             var skip = offset ?? 0;
-            var airportCode = airport.ToLowerInvariant();
+            var airportCode = airport.ToLower();
 
             var sql = $@"
                 SELECT air.callsign,

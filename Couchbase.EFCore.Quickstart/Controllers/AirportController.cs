@@ -68,8 +68,7 @@ public class AirportController: Controller
             var skip = offset ?? 0;
             var airportCode = airport.ToLower();
 
-            const string sql = @"
-                SELECT DISTINCT route.destinationairport
+            const string sql = @"SELECT DISTINCT route.destinationairport
                 FROM `travel-sample`.`inventory`.`airport` AS airport
                 JOIN `travel-sample`.`inventory`.`route` AS route
                   ON route.sourceairport = airport.faa
@@ -79,7 +78,7 @@ public class AirportController: Controller
                 LIMIT {1}
                 OFFSET {2}";
 
-            var destinations = await _context.Airports
+            var destinations = await _context.Set<DestinationAirport>()
                 .FromSqlRaw(sql, airportCode, pageSize, skip)
                 .ToListAsync();
 

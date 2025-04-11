@@ -15,6 +15,7 @@ public class TravelDbContext: DbContext
     public DbSet<Route> Routes { get; set; }
     public DbSet<Airline> Airlines { get; set; }
     public DbSet<Airport> Airports { get; set; }
+    public DbSet<DestinationAirport> DestinationAirports { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -27,5 +28,8 @@ public class TravelDbContext: DbContext
         modelBuilder.Entity<Airport>().ToCouchbaseCollection(this, "airport");
         modelBuilder.Entity<Geo>().HasNoKey();
         modelBuilder.Ignore<Geo>();
+        
+        modelBuilder.Entity<DestinationAirport>().ToCouchbaseCollection(this, "destinationairport");
+        modelBuilder.Entity<DestinationAirport>().HasNoKey();
     }
 }
