@@ -7,10 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Couchbase.EntityFrameworkCore" Version="1.0.0-RC.1" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.11"/>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="8.1.0" />
+        <PackageReference Include="Couchbase.EntityFrameworkCore" Version="1.0.1" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.28" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.4" />
+        <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="8.1.4" />
     </ItemGroup>
 
     <ItemGroup>
