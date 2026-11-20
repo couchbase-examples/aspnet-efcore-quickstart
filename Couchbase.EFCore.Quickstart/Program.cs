@@ -1,7 +1,9 @@
 using System.Text;
 using Couchbase;
+using Couchbase.EFCore.Quickstart.Configuration;
 using Couchbase.EFCore.Quickstart.Data;
 using Couchbase.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,23 +38,24 @@ builder.Services.AddSwaggerGen(options =>
     options.EnableAnnotations();
 });
 
-builder.Services.AddDbContext<TravelDbContext>(options =>
+builder.Services.AddOptions<CouchbaseSettings>()
+    .Bind(builder.Configuration.GetSection(CouchbaseSettings.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+builder.Services.AddDbContext<TravelDbContext>((serviceProvider, options) =>
 {
+    var settings = serviceProvider.GetRequiredService<IOptions<CouchbaseSettings>>().Value;
     var clusterOptions = new ClusterOptions()
-        .WithCredentials("", "")
-        .WithConnectionString("")
-        .WithLogging(
-            LoggerFactory.Create(
-                builder =>
-                {
-                    builder.AddFilter(level => level >= LogLevel.Debug);
-                }));
+        .WithCredentials(settings.Username, settings.Password)
+        .WithConnectionString(settings.ConnectionString)
+        .WithLogging(serviceProvider.GetRequiredService<ILoggerFactory>());
     options
         .UseCouchbase(clusterOptions,
             couchbaseDbContextOptions =>
             {
-                couchbaseDbContextOptions.Bucket = "travel-sample";
-                couchbaseDbContextOptions.Scope = "inventory";
+                couchbaseDbContextOptions.Bucket = CouchbaseSettings.BucketName;
+                couchbaseDbContextOptions.Scope = CouchbaseSettings.ScopeName;
             });
 });
 
@@ -75,3 +78,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Exposes the implicit Program class to integration tests (WebApplicationFactory<Program>).
+public partial class Program;
